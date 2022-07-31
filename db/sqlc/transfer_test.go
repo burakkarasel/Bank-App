@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// createRandomTransfer creates a random transfer
 func createRandomTransfer(t *testing.T, account1, account2 Account) Transfer {
 	arg := CreateTransferParams{
 		FromAccountID: account1.ID,
@@ -31,6 +32,7 @@ func createRandomTransfer(t *testing.T, account1, account2 Account) Transfer {
 	return transfer
 }
 
+// TestCreateTransfer tests CreateTransfer func
 func TestCreateTransfer(t *testing.T) {
 	acc1 := createRandomAccount(t)
 	acc2 := createRandomAccount(t)
@@ -38,6 +40,7 @@ func TestCreateTransfer(t *testing.T) {
 	createRandomTransfer(t, acc1, acc2)
 }
 
+// TestGetTransfer tests GetTransfer func
 func TestGetTransfer(t *testing.T) {
 	acc1 := createRandomAccount(t)
 	acc2 := createRandomAccount(t)
@@ -56,6 +59,7 @@ func TestGetTransfer(t *testing.T) {
 	require.WithinDuration(t, testTransfer.CreatedAt, transfer.CreatedAt, time.Second)
 }
 
+// TestListTransfers tests ListTransfers func
 func TestListTransfers(t *testing.T) {
 	acc1 := createRandomAccount(t)
 	acc2 := createRandomAccount(t)

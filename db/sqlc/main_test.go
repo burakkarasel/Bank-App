@@ -11,14 +11,18 @@ import (
 )
 
 var testQueries *Queries
+var testDB *sql.DB
 
+// TestMain Creates a test DB for test functions
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dsn.DBDriver, dsn.DBSource)
+	var err error
+
+	testDB, err = sql.Open(dsn.TestDBDriver, dsn.TestDBSource)
 	if err != nil {
 		log.Fatal("cannot connect to DB", err)
 	}
 
-	testQueries = New(conn)
+	testQueries = New(testDB)
 
 	os.Exit(m.Run())
 }
