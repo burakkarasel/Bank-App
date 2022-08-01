@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install soda cli
-        uses: go install github.com/gobuffalo/pop/v6/soda@latest
+        run: go install github.com/gobuffalo/pop/v6/soda@latest
 
       - name: Run Migrations
         run: make up
