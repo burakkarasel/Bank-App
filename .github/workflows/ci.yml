@@ -40,7 +40,7 @@ jobs:
         run: go install github.com/gobuffalo/pop/v6/soda@latest
 
       - name: Run Migrations
-        run: make up
+        run: soda migrate -p ./db
 
       - name: Test
         run: go test -v ./...
