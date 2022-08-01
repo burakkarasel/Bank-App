@@ -17,7 +17,7 @@ var testDB *sql.DB
 func TestMain(m *testing.M) {
 	var err error
 
-	testDB, err = sql.Open(dsn.TestDBDriver, dsn.TestDBSource)
+	testDB, err = sql.Open("postgres", dsn.TestDBSource)
 	if err != nil {
 		log.Fatal("cannot connect to DB", err)
 	}
