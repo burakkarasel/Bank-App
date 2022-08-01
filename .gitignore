@@ -1,6 +1,4 @@
-database.yml
 .vscode
 dsn
 dsn.go
-Makefile
 test-dsn.go
