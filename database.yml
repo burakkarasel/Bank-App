@@ -1,6 +1,6 @@
 development:
   dialect: postgres
-  database: bank_app
+  database: test_db
   user: root
   password: password
   host: 127.0.0.1

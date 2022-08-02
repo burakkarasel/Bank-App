@@ -13,7 +13,7 @@ var testQueries *Queries
 var testDB *sql.DB
 
 const (
-	TestDBSource = "postgresql://root:password@localhost:5432/bank_app?sslmode=disable"
+	TestDBSource = "postgresql://root:password@localhost:5432/test_db?sslmode=disable"
 )
 
 // TestMain Creates a test DB for test functions
