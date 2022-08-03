@@ -14,4 +14,6 @@ down:
 	soda migrate down -p ./db
 server :
 	go run cmd/main/main.go
-.PHONY: createdb postgres dropdb up down reset
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/burakkarasel/Bank-App/db/sqlc Store
+.PHONY: postgres createdb dropdb sqlc test up down server mock
