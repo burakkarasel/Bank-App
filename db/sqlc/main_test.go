@@ -6,21 +6,24 @@ import (
 	"os"
 	"testing"
 
+	"github.com/burakkarasel/Bank-App/util"
 	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries
 var testDB *sql.DB
 
-const (
-	TestDBSource = "postgresql://root:password@localhost:5432/bank_app?sslmode=disable"
-)
-
 // TestMain Creates a test DB for test functions
 func TestMain(m *testing.M) {
 	var err error
 
-	testDB, err = sql.Open("postgres", TestDBSource)
+	config, err := util.LoadConfig("../..")
+
+	if err != nil {
+		log.Fatal("cannot get env variables:", err)
+	}
+
+	testDB, err = sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to DB", err)
 	}

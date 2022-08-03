@@ -153,6 +153,22 @@ ALTER SEQUENCE public.transfers_id_seq OWNED BY public.transfers.id;
 
 
 --
+-- Name: users; Type: TABLE; Schema: public; Owner: root
+--
+
+CREATE TABLE public.users (
+    username character varying NOT NULL,
+    hashed_password character varying NOT NULL,
+    full_name character varying NOT NULL,
+    email character varying NOT NULL,
+    password_changed_at timestamp with time zone DEFAULT '0001-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO root;
+
+--
 -- Name: accounts id; Type: DEFAULT; Schema: public; Owner: root
 --
 
@@ -190,11 +206,35 @@ ALTER TABLE ONLY public.entries
 
 
 --
+-- Name: accounts owner_currency_key; Type: CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.accounts
+    ADD CONSTRAINT owner_currency_key UNIQUE (owner, currency);
+
+
+--
 -- Name: transfers transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: root
 --
 
 ALTER TABLE ONLY public.transfers
     ADD CONSTRAINT transfers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (username);
 
 
 --
@@ -237,6 +277,14 @@ CREATE INDEX transfers_from_account_id_to_account_id_idx ON public.transfers USI
 --
 
 CREATE INDEX transfers_to_account_id_idx ON public.transfers USING btree (to_account_id);
+
+
+--
+-- Name: accounts accounts_owner_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.accounts
+    ADD CONSTRAINT accounts_owner_fkey FOREIGN KEY (owner) REFERENCES public.users(username);
 
 
 --
