@@ -12,4 +12,6 @@ up:
 	soda migrate -p ./db
 down:
 	soda migrate down -p ./db
+server :
+	go run cmd/main/main.go
 .PHONY: createdb postgres dropdb up down reset
