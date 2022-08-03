@@ -6,12 +6,13 @@ import (
 
 	db "github.com/burakkarasel/Bank-App/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 // createAccountRequest holds the params of the request's and response's
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency"  binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency"  binding:"required,currency"`
 }
 
 // createAccount handles account creation requests, checks the binding, and finally if the account is succesfully inserted to DB
@@ -32,6 +33,13 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	account, err := server.store.CreateAccount(ctx, arg)
 
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
