@@ -17,6 +17,7 @@ func main() {
 		log.Fatal("cannot load config:", err)
 	}
 
+	// here we connect to DB if any error occurs program shutsdown
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
@@ -26,6 +27,7 @@ func main() {
 
 	server := api.NewServer(store)
 
+	// and here we start listening our server
 	err = server.Start(config.ServerAddress)
 
 	if err != nil {
