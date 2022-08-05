@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Store interface enables both the MockDB and our real DB can use this queries
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
