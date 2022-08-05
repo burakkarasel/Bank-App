@@ -50,6 +50,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
+// validAccount checks if a given currency is valid for given account id
 func (server *Server) validAccount(ctx *gin.Context, currency string, accID int64) bool {
 	acc, err := server.store.GetAccount(ctx, accID)
 

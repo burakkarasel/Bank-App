@@ -27,6 +27,7 @@ func NewServer(store db.Store) *Server {
 	router.POST("/accounts", server.createAccount)
 	router.GET("/accounts/:id", server.getAccountById)
 	router.GET("/accounts", server.listAccounts)
+	router.DELETE("/accounts/:id", server.deleteAccount)
 
 	// transfers
 	router.POST("/transfers", server.createTransfer)
@@ -46,4 +47,8 @@ func (server *Server) Start(address string) error {
 // errorResponse lets us to send error to client in JSON format (key:value)
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func successResponse(msg string) gin.H {
+	return gin.H{"success": msg}
 }
