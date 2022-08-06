@@ -2,17 +2,17 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
 	"net/http"
 
 	db "github.com/burakkarasel/Bank-App/db/sqlc"
+	"github.com/burakkarasel/Bank-App/token"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 )
 
 // createAccountRequest holds the params of the request's and response's
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency"  binding:"required,currency"`
 }
 
@@ -25,8 +25,11 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	// here we prevent getting different owners to create account instead users can only create account with their username
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Currency: req.Currency,
 		Balance:  0,
 	}
@@ -73,6 +76,14 @@ func (server *Server) getAccountById(ctx *gin.Context) {
 		return
 	}
 
+	// here we prevent users to check other user's accounts
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if account.Owner != authPayload.Username {
+		err := errors.New("account doesn't belong to authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+	}
+
 	ctx.JSON(http.StatusOK, account)
 }
 
@@ -91,7 +102,11 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 		return
 	}
 
+	// here we prevent user's to list other user's accounts
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	accounts, err := server.store.ListAccounts(ctx, db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageId - 1) * req.PageSize,
 	})
@@ -102,31 +117,4 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, accounts)
-}
-
-// deleteAccountRequest holds the information for deleting account request
-type deleteAccountRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
-}
-
-// deleteAccount handles account deletion requests
-func (server *Server) deleteAccount(ctx *gin.Context) {
-	var req deleteAccountRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	err := server.store.DeleteAccount(ctx, req.ID)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, successResponse(fmt.Sprintf("deleted account with id %d", req.ID)))
 }

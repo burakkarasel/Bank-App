@@ -28,20 +28,24 @@ type eqCreateUserParamsMatcher struct {
 
 // Matches implements gomock.Matcher interface
 func (e eqCreateUserParamsMatcher) Matches(x interface{}) bool {
+	// here we convert the given argument to CreateUserParams and check for error
 	arg, ok := x.(db.CreateUserParams)
 
 	if !ok {
 		return false
 	}
 
+	// then we check if the password in eqCreateUserParamsMatcher matches with the hashedPassword in arg
 	err := util.CheckPassword(e.password, arg.HashedPassword)
 
 	if err != nil {
 		return false
 	}
 
+	// if they matches we changed args hashedPassword to given hashed password
 	e.arg.HashedPassword = arg.HashedPassword
 
+	// and then we check if both password are strictly same
 	return reflect.DeepEqual(e.arg, arg)
 }
 
@@ -55,6 +59,7 @@ func EqCreateUserParams(arg db.CreateUserParams, password string) gomock.Matcher
 	return eqCreateUserParamsMatcher{arg, password}
 }
 
+// TestCreateUserAPI tests CreateUser handler
 func TestCreateUserAPI(t *testing.T) {
 	user, password := randomUser(t)
 
@@ -229,7 +234,7 @@ func TestCreateUserAPI(t *testing.T) {
 			tt.buildStubs(store)
 
 			// create a new server with the mockstore
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := "/users"
