@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"errors"
 	"net/http"
 
 	db "github.com/burakkarasel/Bank-App/db/sqlc"
@@ -80,8 +79,7 @@ func (server *Server) getAccountById(ctx *gin.Context) {
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 
 	if account.Owner != authPayload.Username {
-		err := errors.New("account doesn't belong to authenticated user")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(ErrAccountIsNotAuthenticatedUsers))
 	}
 
 	ctx.JSON(http.StatusOK, account)

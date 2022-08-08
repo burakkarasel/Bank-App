@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 
 	db "github.com/burakkarasel/Bank-App/db/sqlc"
@@ -10,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 )
+
+var ErrAccountIsNotAuthenticatedUsers = errors.New("account doesn't belong to authenticated user")
 
 // Server serves all HTTP request for banking services
 type Server struct {
@@ -58,6 +61,11 @@ func (server *Server) setupRouter() {
 
 	// transfers
 	authRoutes.POST("/transfers", server.createTransfer)
+
+	// entries
+	authRoutes.POST("/entries", server.createEntry)
+	authRoutes.GET("/entries/:id", server.getEntry)
+	authRoutes.GET("/entries", server.listEntries)
 
 	server.router = router
 }
