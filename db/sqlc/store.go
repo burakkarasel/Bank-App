@@ -36,11 +36,13 @@ type TransferTxResult struct {
 	ToEntry     Entry    `json:"to_entry"`
 }
 
+// EntryTxParams holds the params of the entryTx func
 type EntryTxParams struct {
 	AccountID int64 `json:"account_id"`
 	Amount    int64 `json:"amount"`
 }
 
+// EntryTxResult holds the result values of the entryTx func
 type EntryTxResult struct {
 	Entry   Entry   `json:"entry"`
 	Account Account `json:"account"`

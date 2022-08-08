@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -183,4 +184,74 @@ func TestTransferTxDeadlock(t *testing.T) {
 
 	require.Equal(t, acc1.Balance, updatedAccount1.Balance)
 	require.Equal(t, acc2.Balance, updatedAccount2.Balance)
+}
+
+// TestEntryTx tests EntryTx transition func
+func TestEntryTx(t *testing.T) {
+	store := NewStore(testDB)
+
+	acc1 := createRandomAccount(t)
+
+	//* run n concurrent transfer transactions
+
+	n := 5
+
+	amount := int64(10)
+
+	errs := make(chan error)
+
+	results := make(chan EntryTxResult)
+
+	for i := 0; i < n; i++ {
+		go func() {
+			result, err := store.EntryTx(context.Background(), EntryTxParams{
+				Amount:    amount,
+				AccountID: acc1.ID,
+			})
+
+			errs <- err
+			results <- result
+		}()
+	}
+
+	//! check results
+
+	for i := 0; i < n; i++ {
+		err := <-errs
+		require.NoError(t, err)
+
+		result := <-results
+		require.NotEmpty(t, result)
+
+		//! check entry
+		entry := result.Entry
+
+		require.NotEmpty(t, entry)
+		require.Equal(t, acc1.ID, entry.AccountID)
+		require.Equal(t, amount, entry.Amount)
+		require.NotZero(t, entry.ID)
+		require.NotZero(t, entry.CreatedAt)
+
+		_, err = store.GetEntry(context.Background(), entry.ID)
+
+		require.NoError(t, err)
+
+		//! check account
+
+		account := result.Account
+
+		require.NotEmpty(t, account)
+		require.Equal(t, acc1.ID, account.ID)
+		require.Equal(t, acc1.Owner, account.Owner)
+		require.Equal(t, acc1.Currency, account.Currency)
+		require.WithinDuration(t, acc1.CreatedAt, account.CreatedAt, time.Second)
+	}
+
+	//! check the final updated balances
+	updatedAccount, err := testQueries.GetAccount(context.Background(), acc1.ID)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedAccount)
+
+	require.Equal(t, acc1.Balance+amount*int64(n), updatedAccount.Balance)
 }
