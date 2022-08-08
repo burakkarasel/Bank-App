@@ -444,6 +444,7 @@ func TestListAccountsAPI(t *testing.T) {
 	}
 }
 
+// requiredBodyMatchAccounts check for the body and the accounts if they matches
 func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)

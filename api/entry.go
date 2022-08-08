@@ -49,11 +49,7 @@ func (server *Server) createEntry(ctx *gin.Context) {
 	result, err := server.store.EntryTx(ctx, arg)
 
 	if err != nil {
-		if err == sql.ErrConnDone {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -106,12 +102,14 @@ func (server *Server) getEntry(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, entry)
 }
 
+// listEntriesRequest holds the query values for listEntries handler
 type listEntriesRequest struct {
 	AccountID int64 `form:"account_id" binding:"required,min=1"`
 	PageID    int64 `form:"page_id" binding:"required,min=1"`
 	PageSize  int64 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
+// listEntries list entries for the user for a specific account
 func (server *Server) listEntries(ctx *gin.Context) {
 	var req listEntriesRequest
 
@@ -157,6 +155,7 @@ func (server *Server) listEntries(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, entries)
 }
 
+// getAuthenticationValidation checks if auhtenticated user and account matches
 func (server *Server) getAuthenticationValidation(ctx *gin.Context, accountID int64) error {
 	acc, err := server.store.GetAccount(ctx, accountID)
 
