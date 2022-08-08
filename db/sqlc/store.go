@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -10,6 +11,7 @@ import (
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+	EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxResult, error)
 }
 
 //* Store provides all functions to execute db queries and transactions
@@ -32,6 +34,16 @@ type TransferTxResult struct {
 	ToAccount   Account  `json:"to_account"`
 	FromEntry   Entry    `json:"from_entry"`
 	ToEntry     Entry    `json:"to_entry"`
+}
+
+type EntryTxParams struct {
+	AccountID int64 `json:"account_id"`
+	Amount    int64 `json:"amount"`
+}
+
+type EntryTxResult struct {
+	Entry   Entry   `json:"entry"`
+	Account Account `json:"account"`
 }
 
 //* NewStore returns a new Store with the given DB
@@ -118,6 +130,53 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 		}
 
 		return nil
+	})
+
+	return result, err
+}
+
+//* EntryTx performs a money entry for an account.
+//* It checks the funds of the account, updates the account and creates a new entry
+func (store *SQLStore) EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxResult, error) {
+	var result EntryTxResult
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		acc, err := q.GetAccount(ctx, arg.AccountID)
+
+		if err != nil {
+			return err
+		}
+
+		if arg.Amount < 0 && (-arg.Amount) > acc.Balance {
+			err = errors.New("insufficient funds")
+			return err
+		}
+
+		arg1 := AddAccountBalanceParams{
+			Amount: arg.Amount,
+			ID:     arg.AccountID,
+		}
+
+		result.Account, err = q.AddAccountBalance(ctx, arg1)
+
+		if err != nil {
+			return err
+		}
+
+		arg2 := CreateEntryParams{
+			AccountID: arg.AccountID,
+			Amount:    arg.Amount,
+		}
+
+		result.Entry, err = q.CreateEntry(ctx, arg2)
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	})
 
 	return result, err
