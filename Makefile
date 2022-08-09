@@ -9,9 +9,9 @@ sqlc:
 test:
 	go test -v -cover ./...
 up:
-	soda migrate -p ./db
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_app?sslmode=disable" -verbose up 
 down:
-	soda migrate down -p ./db
+	migrate -path db/migration -database "postgresql://root:password@localhost:5432/bank_app?sslmode=disable" -verbose down
 server :
 	go run cmd/main/main.go
 mock:

@@ -1,7 +1,0 @@
-development:
-  dialect: postgres
-  database: bank_app
-  user: root
-  password: password
-  host: 127.0.0.1
-  pool: 5
