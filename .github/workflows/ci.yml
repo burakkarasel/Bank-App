@@ -38,11 +38,11 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
 
-      - name: Install soda cli
-        run: go install github.com/gobuffalo/pop/v6/soda@latest
+      - name: Install go-migrate
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
       - name: Run Migrations
-        run: soda migrate -p ./db
+        run: make up
 
       - name: Test
         run: go test -v ./...
