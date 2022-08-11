@@ -4,3 +4,4 @@ dsn.go
 test-dsn.go
 migrate
 LICENSE
+*.log
