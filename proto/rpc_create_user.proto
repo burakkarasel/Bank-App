@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+// here we declare the package name
+package pb;
+
+import "user.proto";
+
+// here we specify the directory of our package
+option go_package = "github.com/burakkarasel/Bank-App/pb";
+
+// here we declare the user message
+message CreateUserRequest {
+    string username = 1;
+    string full_name = 2;
+    string email = 3;
+    string password = 4;
+}
+
+// here we use the imported user type
+message CreateUserResponse {
+    User user = 1;
+}
+

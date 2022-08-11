@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+// here we declare the package name
+package pb;
+
+import "rpc_create_user.proto";
+import "rpc_login_user.proto";
+
+// here we specify the directory of our package
+option go_package = "github.com/burakkarasel/Bank-App/pb";
+
+// here we define a new service and a new rpc init
+service BankApp {
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
+    rpc LoginUser (LoginUserRequest) returns (LoginUserResponse){}
+}
+
