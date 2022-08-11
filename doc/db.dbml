@@ -1,0 +1,65 @@
+Project bank_app_project {
+    database_type: 'PostgreSQL'
+    Note: '''
+        # Bank App Database
+    '''
+}
+
+// Creating tables
+// You can define the tables with full schema names
+Table accounts as A {
+  id bigserial [pk]
+  owner varchar [not null, ref: > u.username]
+  balance bigint [not null]
+  currency varchar [not null]
+  created_at timestamptz [default: `now()`, not null]
+  Indexes {
+    owner
+    (owner, currency) [unique]
+  }
+}
+
+// If schema name is omitted, it will default to "public" schema.
+Table entries {
+  id bigserial [pk] // auto-increment
+  account_id bigint [ref: > A.id, not null]
+  amount bigint [not null, note: 'can be negative or positive']
+  created_at timestamptz [default: `now()`, not null]
+  Indexes {
+    account_id
+  }
+  
+}
+
+Table transfers {
+  id bigserial [pk] // auto-increment
+  from_account_id bigint [ref: > A.id, not null]
+  to_account_id bigint [ref: > A.id, not null]
+  amount bigint [not null, note: 'only positive']
+  created_at timestamptz [default: `now()`, not null]
+  Indexes {
+    from_account_id
+    to_account_id
+    (from_account_id, to_account_id)
+  }
+ }
+
+Table users as u{
+  username varchar [pk]
+  hashed_password varchar [not null]
+  full_name varchar [not null]
+  email varchar [unique, not null]
+  password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table sessions as s {
+ id uuid [pk]
+ username varchar [ref: > u.username, not null]
+ refresh_token varchar [not null]
+ user_agent varchar [not null]
+ client_ip varchar [not null]
+ is_blocked boolean [not null, default: false]
+ expires_at timestamptz [not null]
+ created_at timestamptz [not null, default: `now()`]
+}
