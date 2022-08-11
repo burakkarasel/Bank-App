@@ -7,6 +7,8 @@ import (
 	"fmt"
 )
 
+var ErrInsufficientFunds = errors.New("insufficient funds")
+
 // Store interface enables both the MockDB and our real DB can use this queries
 type Store interface {
 	Querier
@@ -14,20 +16,20 @@ type Store interface {
 	EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxResult, error)
 }
 
-//* Store provides all functions to execute db queries and transactions
+// * Store provides all functions to execute db queries and transactions
 type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-//* TransferTxParams hold the all necessary input values for the transfer
+// * TransferTxParams hold the all necessary input values for the transfer
 type TransferTxParams struct {
 	FromAccountID int64 `json:"from_account_id"`
 	ToAccountID   int64 `json:"to_account_id"`
 	Amount        int64 `json:"amount"`
 }
 
-//* TransferTxResult holds the result of the transfer transaction
+// * TransferTxResult holds the result of the transfer transaction
 type TransferTxResult struct {
 	Transfer    Transfer `json:"transfer"`
 	FromAccount Account  `json:"from_account"`
@@ -48,7 +50,7 @@ type EntryTxResult struct {
 	Account Account `json:"account"`
 }
 
-//* NewStore returns a new Store with the given DB
+// * NewStore returns a new Store with the given DB
 func NewStore(db *sql.DB) Store {
 	return &SQLStore{
 		db:      db,
@@ -56,7 +58,7 @@ func NewStore(db *sql.DB) Store {
 	}
 }
 
-//* execTx executes a function within a database transaction
+// * execTx executes a function within a database transaction
 func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 
@@ -77,8 +79,8 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) erro
 	return tx.Commit()
 }
 
-//* TransferTx performs a money transfer from one account to the other.
-//* It creates a transfer record, add account entries, and update account balances within a single database transaction
+// * TransferTx performs a money transfer from one account to the other.
+// * It creates a transfer record, add account entries, and update account balances within a single database transaction
 func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
@@ -137,8 +139,8 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 	return result, err
 }
 
-//* EntryTx performs a money entry for an account.
-//* It checks the funds of the account, updates the account and creates a new entry
+// * EntryTx performs a money entry for an account.
+// * It checks the funds of the account, updates the account and creates a new entry
 func (store *SQLStore) EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxResult, error) {
 	var result EntryTxResult
 
@@ -152,7 +154,7 @@ func (store *SQLStore) EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxR
 		}
 
 		if arg.Amount < 0 && (-arg.Amount) > acc.Balance {
-			err = errors.New("insufficient funds")
+			err = ErrInsufficientFunds
 			return err
 		}
 
@@ -184,7 +186,7 @@ func (store *SQLStore) EntryTx(ctx context.Context, arg EntryTxParams) (EntryTxR
 	return result, err
 }
 
-//* addMoney adds an amount to two given accounts
+// * addMoney adds an amount to two given accounts
 func addMoney(ctx context.Context, q *Queries, accountID1, amount1, accountID2, amount2 int64) (account1 Account, account2 Account, err error) {
 	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
 		ID:     accountID1,
