@@ -191,7 +191,7 @@ func TestCreateEntryAPI(t *testing.T) {
 			name: "insufficient funds",
 			body: gin.H{
 				"account_id": acc.ID,
-				"amount":     acc.Balance + 1,
+				"amount":     -(acc.Balance + 1),
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Username, time.Minute)
@@ -200,7 +200,7 @@ func TestCreateEntryAPI(t *testing.T) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(acc.ID)).Times(1).Return(acc, nil)
 				arg := db.EntryTxParams{
 					AccountID: acc.ID,
-					Amount:    int64(acc.Balance + 1),
+					Amount:    int64(-(acc.Balance + 1)),
 				}
 				store.EXPECT().EntryTx(gomock.Any(), gomock.Eq(arg)).Times(1).Return(db.EntryTxResult{}, db.ErrInsufficientFunds)
 			},

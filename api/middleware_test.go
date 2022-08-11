@@ -15,8 +15,9 @@ import (
 // addAuthorization creates a token and sets request's header with given authorizationType and the token
 func addAuthorization(t *testing.T, r *http.Request, tokenMaker token.Maker, authorizationType, username string, duration time.Duration) {
 	// here we create token with given input
-	token, err := tokenMaker.CreateToken(username, duration)
+	token, payload, err := tokenMaker.CreateToken(username, duration)
 	require.NoError(t, err)
+	require.NotEmpty(t, payload)
 
 	// and here we set request's header with generated token, and given authorizationType
 	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
