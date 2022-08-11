@@ -49,7 +49,11 @@ func (server *Server) createEntry(ctx *gin.Context) {
 	result, err := server.store.EntryTx(ctx, arg)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		if err == sql.ErrConnDone {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
