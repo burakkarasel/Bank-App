@@ -138,7 +138,7 @@ func (server *Server) listEntries(ctx *gin.Context) {
 	arg := db.ListEntriesParams{
 		AccountID: req.AccountID,
 		Limit:     int32(req.PageSize),
-		Offset:    int32(req.PageID),
+		Offset:    int32((req.PageID - 1) * req.PageSize),
 	}
 
 	entries, err := server.store.ListEntries(ctx, arg)
