@@ -104,6 +104,12 @@ make sqlc
 make mock
 ```
 
+### Run tests
+
+```
+make test
+```
+
 ### Start App
 
 - Start app directly
