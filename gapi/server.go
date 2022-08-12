@@ -20,7 +20,7 @@ type Server struct {
 	tokenMaker token.Maker
 }
 
-// NewServer creates a new Server which will hold our routes and DB
+// NewServer creates a new Server which will hold our config and DB
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
 
