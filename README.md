@@ -124,6 +124,24 @@ make server
 docker compose up
 ```
 
+### Give it a try
+
+#### Routes
+
+| Request        | URL                                               | json                                                                       | Auth needed |
+| -------------- | ------------------------------------------------- | -------------------------------------------------------------------------- | ----------- |
+| Create user    | :8080/users                                       | {"username": "", "password": "", "email", "" "full_name": ""}              | No          |
+| Login user     | :8080/users/login                                 | {"username": "", "password": ""}                                           | No          |
+| Create account | :8080/accounts                                    | {"currency": ""}                                                           | Yes         |
+| Get account    | :8080/accounts/:id                                |                                                                            | Yes         |
+| List accounts  | :8080/accounts?page_id=1&page_size=5              |                                                                            | Yes         |
+| Create entry   | :8080/entries                                     | {"account_id": 0, "amount":0}                                              | Yes         |
+| Get entry      | :8080/entries/:id                                 |                                                                            | Yes         |
+| List entries   | :8080/accounts?account_id=1&page_id=1&page_size=5 |                                                                            | Yes         |
+| Make transfer  | :8080/transfers                                   | {"from_account_id": 0, "to_account_id": 0, "amount": 0, "currency": "USD"} | Yes         |
+
+==Don't forget to copy your access token for authentication required routes after logging in!==
+
 [Back To The Top](#cactus-bank)
 
 ---
