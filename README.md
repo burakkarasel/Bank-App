@@ -140,7 +140,7 @@ docker compose up
 | List entries   | :8080/accounts?account_id=1&page_id=1&page_size=5 |                                                                            | Yes         |
 | Make transfer  | :8080/transfers                                   | {"from_account_id": 0, "to_account_id": 0, "amount": 0, "currency": "USD"} | Yes         |
 
-==Don't forget to copy your access token for authentication required routes after logging in!==
+Don't forget to copy your access token for authentication required routes after logging in!
 
 [Back To The Top](#cactus-bank)
 
